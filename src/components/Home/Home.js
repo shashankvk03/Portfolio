@@ -18,7 +18,7 @@ function Home() {
     // Clean up the script on component unmount
     return () => {
       document.body.removeChild(script);
-    };
+    };  
   }, []);
 
   return (
