@@ -7,15 +7,30 @@ import "react-pdf/dist/esm/Page/AnnotationLayer.css";
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
 
 function ResumeNew() {
-  const [width, setWidth] = useState(2200);
+  const [width, setWidth] = useState(window.innerWidth);
   const [numPages, setNumPages] = useState(null);
 
   useEffect(() => {
-    setWidth(window.innerWidth);
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+
+    // Listen to window resize events
+    window.addEventListener("resize", handleResize);
+    
+    // Cleanup event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   const onDocumentLoadSuccess = ({ numPages }) => {
     setNumPages(numPages);
+  };
+
+  // Calculate scale dynamically based on the screen width
+  const calculateScale = () => {
+    if (width > 1200) return 2.2; // Large screens
+    if (width > 768) return 1.5;  // Medium screens (tablets)
+    return 1.0;                  // Small screens (mobile)
   };
 
   return (
@@ -33,8 +48,12 @@ function ResumeNew() {
               <Page
                 key={`page_${index + 1}`}
                 pageNumber={index + 1}
-                scale={width > 886 ? 2.2 : 0.9} // Adjust the scale as necessary
-                style={{ marginBottom: "10px" }}
+                scale={calculateScale()}  // Adjust the scale dynamically
+                style={{
+                  marginBottom: "10px",
+                  width: "100%",            // Make sure the PDF is responsive
+                  maxWidth: "100%",         // Ensure it doesn't overflow horizontally
+                }}
               />
             ))}
           </Document>
