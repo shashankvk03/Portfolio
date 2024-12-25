@@ -7,6 +7,7 @@ import Projects from "./components/Projects/Projects";
 import Footer from "./components/Footer";
 import Resume from "./components/Resume/ResumeNew";
 import Certificate from "./components/Certificate/certificate";
+import { Analytics } from "@vercel/analytics/react"
 import {
   BrowserRouter as Router,
   Route,
@@ -36,6 +37,7 @@ function App() {
       <div className="App" id={load ? "no-scroll" : "scroll"}>
         <Navbar />
         <ScrollToTop />
+        <Analytics />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/project" element={<Projects />} />
@@ -43,6 +45,7 @@ function App() {
           <Route path="/resume" element={<Resume />} />
           <Route path="/experience" element={<Experience />} />
           <Route path="/certificate" element={<Certificate/>} />
+
 
           <Route path="*" element={<Navigate to="/"/>} />
         </Routes>
