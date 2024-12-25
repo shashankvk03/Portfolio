@@ -1,26 +1,10 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Container, Row, Col } from "react-bootstrap";
 import Particle from "../Particle";
 import Type from "./Type";
+import homeImage from "../../Assets/pixel.jpeg"; // Import the image from assets
 
 function Home() {
-  useEffect(() => {
-    // Dynamically load the Spline viewer script
-    const script = document.createElement("script");
-    script.src = "https://unpkg.com/@splinetool/viewer@1.9.54/build/spline-viewer.js";
-    script.type = "module";
-    script.onload = () => {
-      // Once the script is loaded, the viewer should be ready to use
-      console.log("Spline viewer script loaded successfully.");
-    };
-    document.body.appendChild(script);
-
-    // Clean up the script on component unmount
-    return () => {
-      document.body.removeChild(script);
-    };  
-  }, []);
-
   return (
     <section>
       <Container fluid className="home-section" id="home">
@@ -42,18 +26,18 @@ function Home() {
                 I'M
                 <strong className="main-name animated-name"> Shashank V Kashyap</strong>
               </h1>
-
               <div style={{ paddingBottom: 0, textAlign: "center", fontSize: "20px" }}>
                 <Type />
               </div>
             </Col>
 
             <Col md={5} style={{ paddingBottom: 0 }}>
-              {/* Embed the Spline viewer with undefined URL as per request */}
-              <spline-viewer
-                url="https://prod.spline.design/ytl2ibRegJLGkGI3/scene.splinecode"
-                style={{ width: "100%", height: "500px", marginTop: "-50px" }} // Pushed higher with marginTop
-              ></spline-viewer>
+              {/* Use the imported image */}
+              <img
+                src={homeImage}
+                alt="Home Design"
+                style={{ width: "100%", height: "400px", marginTop: "-50px", objectFit: "cover" ,borderRadius:"10%"}} // Pushed higher with marginTop
+              />
             </Col>
           </Row>
         </Container>
