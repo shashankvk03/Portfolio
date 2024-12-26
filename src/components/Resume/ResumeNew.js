@@ -9,11 +9,22 @@ pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/$
 function ResumeNew() {
   const [width, setWidth] = useState(window.innerWidth);
   const [numPages, setNumPages] = useState(null);
+  const [pageWidth, setPageWidth] = useState(null);
 
   useEffect(() => {
     const handleResize = () => {
       setWidth(window.innerWidth);
+      // Update page width based on container size
+      const container = document.querySelector('.resume-section');
+      if (container) {
+        // Account for padding and margins
+        const containerWidth = container.clientWidth - 32; // 16px padding on each side
+        setPageWidth(containerWidth);
+      }
     };
+
+    // Initial call
+    handleResize();
 
     // Listen to window resize events
     window.addEventListener("resize", handleResize);
@@ -26,11 +37,20 @@ function ResumeNew() {
     setNumPages(numPages);
   };
 
-  // Calculate scale dynamically based on the screen width
+  // Calculate scale dynamically based on the PDF's original width and container width
   const calculateScale = () => {
-    if (width > 1200) return 2.2; // Large screens
-    if (width > 768) return 1.5;  // Medium screens (tablets)
-    return 1.0;                  // Small screens (mobile)
+    if (!pageWidth) return 1;
+    
+    // Base PDF width (assuming standard A4 width in pixels at 72 DPI)
+    const standardPDFWidth = 595;
+    
+    // Calculate scale to fit container width
+    const scale = pageWidth / standardPDFWidth;
+    
+    // Limit maximum scale for larger screens
+    if (width > 1200) return Math.min(scale, 1.8);
+    if (width > 768) return Math.min(scale, 1.3);
+    return Math.min(scale, 1.0);
   };
 
   return (
@@ -38,27 +58,59 @@ function ResumeNew() {
       <Container fluid className="resume-section">
         <Particle />
         <Row className="resume justify-content-center">
-          <Document
-            file={pdf}
-            onLoadSuccess={onDocumentLoadSuccess}
-            className="d-flex flex-column align-items-center"
-          >
-            {/* Render all pages vertically */}
-            {Array.from(new Array(numPages), (el, index) => (
-              <Page
-                key={`page_${index + 1}`}
-                pageNumber={index + 1}
-                scale={calculateScale()}  // Adjust the scale dynamically
-                style={{
-                  marginBottom: "10px",
-                  width: "100%",            // Make sure the PDF is responsive
-                  maxWidth: "100%",         // Ensure it doesn't overflow horizontally
-                }}
-              />
-            ))}
-          </Document>
+          <div className="pdf-container" style={{ 
+            width: '100%',
+            overflowX: 'hidden',
+            padding: '16px'
+          }}>
+            <Document
+              file={pdf}
+              onLoadSuccess={onDocumentLoadSuccess}
+              className="d-flex flex-column align-items-center"
+            >
+              {Array.from(new Array(numPages), (el, index) => (
+                <div key={`page_${index + 1}`} style={{
+                  width: '100%',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  marginBottom: '20px'
+                }}>
+                  <Page
+                    pageNumber={index + 1}
+                    scale={calculateScale()}
+                    width={pageWidth}
+                    renderAnnotationLayer={false}
+                    renderTextLayer={false}
+                    style={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)'
+                    }}
+                  />
+                </div>
+              ))}
+            </Document>
+          </div>
         </Row>
       </Container>
+
+      <style jsx global>{`
+        .resume-section {
+          max-width: 100vw;
+          overflow-x: hidden;
+        }
+        
+        .react-pdf__Page__canvas {
+          max-width: 100% !important;
+          height: auto !important;
+        }
+        
+        @media (max-width: 768px) {
+          .pdf-container {
+            padding: 8px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }
